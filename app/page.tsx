@@ -4,12 +4,11 @@ import Image from "next/image";
 import Link from "next/link";
 import { useState, useEffect } from 'react';
 import EnrollmentForm from './components/EnrollmentForm';
-import { checkExistingEnrollment } from './utils/database';
 
-// Update test function to use API
-async function testDatabaseConnection() {
+// Remove database test function since we're using API routes
+async function testApiConnection() {
   try {
-    const response = await fetch('/api/health');
+    const response = await fetch('/api/enrollments');
     const data = await response.json();
     console.log('API connection test:', data);
   } catch (error) {
@@ -30,8 +29,8 @@ export default function Home() {
   const [showEnrollForm, setShowEnrollForm] = useState(false);
 
   useEffect(() => {
-    // Run database test on mount
-    testDatabaseConnection();
+    // Test API connection on mount
+    testApiConnection();
   }, []);
 
   return (

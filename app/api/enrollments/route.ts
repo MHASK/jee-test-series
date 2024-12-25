@@ -1,10 +1,21 @@
 import { createClient } from '@supabase/supabase-js';
 import { NextRequest, NextResponse } from 'next/server';
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-const supabaseKey = process.env.SUPABASE_SERVICE_KEY!;
+// Check for environment variables
+if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.SUPABASE_SERVICE_KEY) {
+  throw new Error('Missing environment variables for Supabase configuration');
+}
 
-const supabase = createClient(supabaseUrl, supabaseKey);
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+const supabaseKey = process.env.SUPABASE_SERVICE_KEY;
+
+// Initialize Supabase client
+const supabase = createClient(supabaseUrl, supabaseKey, {
+  auth: {
+    autoRefreshToken: false,
+    persistSession: false
+  }
+});
 
 interface EnrollmentData {
   name: string;
@@ -17,14 +28,28 @@ interface EnrollmentData {
 
 export async function POST(req: NextRequest) {
   try {
+    // Verify database connection
+    const { error: connectionError } = await supabase.from('enrollments').select('count').limit(1);
+    if (connectionError) {
+      console.error('Database connection error:', connectionError);
+      return NextResponse.json(
+        { error: 'Database connection failed' },
+        { status: 503 }
+      );
+    }
+
     const data = await req.json() as EnrollmentData;
     
     // Check if email exists
-    const { data: existingUser } = await supabase
+    const { data: existingUser, error: lookupError } = await supabase
       .from('enrollments')
       .select('id')
       .eq('email', data.email)
       .single();
+
+    if (lookupError && lookupError.code !== 'PGRST116') {
+      throw lookupError;
+    }
 
     if (existingUser) {
       return NextResponse.json(
@@ -34,7 +59,7 @@ export async function POST(req: NextRequest) {
     }
 
     // Save new enrollment
-    const { error } = await supabase
+    const { error: saveError } = await supabase
       .from('enrollments')
       .insert([{
         ...data,
@@ -42,7 +67,7 @@ export async function POST(req: NextRequest) {
         created_at: new Date().toISOString()
       }]);
 
-    if (error) throw error;
+    if (saveError) throw saveError;
 
     return NextResponse.json({ success: true });
   } catch (error) {
@@ -54,7 +79,6 @@ export async function POST(req: NextRequest) {
   }
 }
 
-// Add health check endpoint
 export async function GET() {
   try {
     const { data, error } = await supabase
@@ -74,9 +98,10 @@ export async function GET() {
     return NextResponse.json(
       { 
         status: 'unhealthy',
-        error: 'Database connection failed'
+        error: 'Database connection failed',
+        details: process.env.NODE_ENV === 'development' ? error : undefined
       },
-      { status: 500 }
+      { status: 503 }
     );
   }
 } 

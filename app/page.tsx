@@ -1,5 +1,5 @@
 import Image from "next/image";
-import PaymentButton from './components/PaymentButton';
+import Link from "next/link";
 
 export default function Home() {
   return (
@@ -59,12 +59,12 @@ const Header = () => {
       <div className="max-w-[1400px] mx-auto px-6">
         <nav className="flex items-center justify-between h-[72px]">
           {/* Logo */}
-          <a href="/" className="flex items-center gap-2">
+          <Link href="/" className="flex items-center gap-2">
             <div className="w-8 h-8 bg-black rounded flex items-center justify-center">
               <span className="text-white font-medium">L</span>
             </div>
             <span className="text-lg font-medium">Lumi AI</span>
-          </a>
+          </Link>
 
           {/* Timer */}
           <div className="flex items-center gap-2">
@@ -412,7 +412,7 @@ const MockTestPreview = () => {
               <p className="text-sm">A particle moves in a circle of radius R with constant speed v. The magnitude of its acceleration is...</p>
             </div>
             <div className="space-y-2">
-              {['v��/R', '2v/R', 'v/R', 'R/v'].map((option, i) => (
+              {['v/R', '2v/R', 'v/R', 'R/v'].map((option, i) => (
                 <div key={i} className="p-3 border border-[#E2E8F0] rounded-lg hover:bg-[#2563EB]/[0.02] cursor-pointer">
                   {option}
                 </div>

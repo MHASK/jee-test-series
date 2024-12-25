@@ -3,8 +3,23 @@
 @tailwind utilities;
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  /* Primary Colors */
+  --slate-dark: #191919;
+  --cloud-dark: #666663;
+  --ivory-dark: #E5E4DF;
+  --book-cloth: #CC785C;
+  
+  /* Secondary Colors */
+  --slate-medium: #262625;
+  --cloud-medium: #91918D;
+  --ivory-medium: #F0F0EB;
+  --kraft: #D4A27F;
+  
+  /* Tertiary Colors */
+  --slate-light: #40403E;
+  --cloud-light: #BFBFBA;
+  --ivory-light: #FAFAF7;
+  --manilla: #EBDBBC;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -17,5 +32,10 @@
 body {
   color: var(--foreground);
   background: var(--background);
-  font-family: Arial, Helvetica, sans-serif;
+}
+
+@layer base {
+  h1 {
+    @apply font-serif;
+  }
 }

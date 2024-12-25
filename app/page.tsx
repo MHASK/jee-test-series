@@ -1,7 +1,39 @@
+'use client';
+
 import Image from "next/image";
 import Link from "next/link";
+import { useState, useEffect } from 'react';
+import EnrollmentForm from './components/EnrollmentForm';
+import { checkExistingEnrollment } from './utils/database';
+
+// Update test function to use API
+async function testDatabaseConnection() {
+  try {
+    const response = await fetch('/api/health');
+    const data = await response.json();
+    console.log('API connection test:', data);
+  } catch (error) {
+    console.error('API test failed:', error);
+  }
+}
+
+const EnrollButton = ({ onClick }: { onClick: () => void }) => (
+  <button
+    onClick={onClick}
+    className="px-6 py-3 bg-violet-500 text-white rounded-full hover:bg-violet-600 transition-colors"
+  >
+    Enroll Now
+  </button>
+);
 
 export default function Home() {
+  const [showEnrollForm, setShowEnrollForm] = useState(false);
+
+  useEffect(() => {
+    // Run database test on mount
+    testDatabaseConnection();
+  }, []);
+
   return (
     <div className="min-h-screen bg-white text-black relative">
       {/* Restore Gradient Background */}
@@ -10,12 +42,12 @@ export default function Home() {
         <div className="absolute top-0 right-1/4 w-[800px] h-[800px] bg-violet-500 opacity-[0.02] blur-[120px] -translate-y-1/2"></div>
       </div>
       {/* Header */}
-      <Header />
+      <Header onEnrollClick={() => setShowEnrollForm(true)} />
 
       <main className="pt-[120px] px-6">
         <div className="max-w-[1400px] mx-auto">
           {/* Hero Section */}
-          <HeroSection />
+          <HeroSection onEnrollClick={() => setShowEnrollForm(true)} />
 
           {/* Social Proof - Moved up for better flow */}
           <SocialProofBanner />
@@ -36,38 +68,42 @@ export default function Home() {
           <StudentResults />
 
           {/* Pricing Section */}
-          <PricingSection />
+          <PricingSection onEnrollClick={() => setShowEnrollForm(true)} />
 
           {/* FAQ Section */}
           <FAQSection />
 
           {/* Final CTA */}
-          <FinalCTA />
+          <FinalCTA onEnrollClick={() => setShowEnrollForm(true)} />
         </div>
       </main>
 
       {/* Footer */}
       <Footer />
+
+      {showEnrollForm && (
+        <EnrollmentForm onClose={() => setShowEnrollForm(false)} />
+      )}
     </div>
   );
 }
 
 // Component: Header
-const Header = () => {
+const Header = ({ onEnrollClick }: { onEnrollClick: () => void }) => {
   return (
     <header className="fixed top-0 left-0 right-0 z-50 bg-white border-b border-gray-100">
-      <div className="max-w-[1400px] mx-auto px-6">
+      <div className="max-w-[1400px] mx-auto px-4 sm:px-6">
         <nav className="flex items-center justify-between h-[72px]">
           {/* Logo */}
-          <Link href="/" className="flex items-center gap-2">
+          <Link href="https://jeetestseries.com" className="flex items-center gap-2">
             <div className="w-8 h-8 bg-black rounded flex items-center justify-center">
               <span className="text-white font-medium">L</span>
             </div>
-            <span className="text-lg font-medium">Lumi AI</span>
+            <span className="text-lg font-medium hidden sm:inline">Lumi AI</span>
           </Link>
 
-          {/* Timer */}
-          <div className="flex items-center gap-2">
+          {/* Timer - Hide on mobile */}
+          <div className="hidden md:flex items-center gap-2">
             <span className="text-sm text-gray-600">
               Test Series starts in:
             </span>
@@ -86,10 +122,21 @@ const Header = () => {
             </div>
           </div>
 
+          {/* Mobile Timer */}
+          <div className="flex md:hidden items-center gap-1 text-sm font-medium">
+            <div className="w-8 h-8 flex items-center justify-center bg-violet-50 rounded">
+              <span className="text-violet-700">12</span>
+            </div>
+            <span>:</span>
+            <div className="w-8 h-8 flex items-center justify-center bg-violet-50 rounded">
+              <span className="text-violet-700">08</span>
+            </div>
+          </div>
+
           {/* CTA Button */}
-          <button className="px-6 py-3 bg-violet-500 text-white rounded-full hover:bg-violet-600 transition-colors">
-            Enroll Now
-          </button>
+          <div className="flex-shrink-0">
+            <EnrollButton onClick={onEnrollClick} />
+          </div>
         </nav>
       </div>
     </header>
@@ -97,7 +144,7 @@ const Header = () => {
 };
 
 // Component: HeroSection
-const HeroSection = () => {
+const HeroSection = ({ onEnrollClick }: { onEnrollClick: () => void }) => {
   return (
     <div className="pt-32 pb-20">
       <div className="max-w-[1000px] mx-auto text-center">
@@ -117,21 +164,27 @@ const HeroSection = () => {
           Join 50,000+ JEE aspirants experiencing personalized preparation with AI-powered adaptive tests and real-time analytics.
         </p>
         <div className="flex items-center justify-center gap-4 mb-16">
-          <button className="px-6 py-3 bg-violet-500 text-white rounded-full hover:bg-violet-600 transition-colors">
-            Enroll Now
-          </button>
-          <button className="px-6 py-3 text-[15px] text-gray-600 hover:text-black transition-colors">
-            View JEE 2024 Calendar →
-          </button>
+          <EnrollButton onClick={onEnrollClick} />
+          <a 
+            href="https://lumineet.com" 
+            target="_blank"
+            rel="noopener noreferrer" 
+            className="px-6 py-3 text-[15px] text-gray-600 hover:text-black transition-colors flex items-center gap-2"
+          >
+            Try our AI for NEET
+            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+            </svg>
+          </a>
         </div>
 
         {/* Social Proof Stats */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-8 p-8 rounded-2xl border border-gray-200 bg-violet-50">
           {[
-            { number: "50K+", label: "Active Students" },
-            { number: "156%", label: "Avg. Score Improvement" },
-            { number: "98.2%", label: "Selection Rate" },
-            { number: "45+", label: "in Top 1000 AIR" }
+            { number: "2K+", label: "Beta Users" },
+            { number: "85%", label: "Avg. Score Growth" },
+            { number: "92%", label: "Practice Completion" },
+            { number: "24/7", label: "AI Support" }
           ].map((stat, index) => (
             <div key={index} className="text-center">
               <div className="text-3xl font-bold text-black mb-1">
@@ -175,28 +228,17 @@ const SocialProofBanner = () => {
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-4">
           <div className="flex -space-x-4">
-            {[
-              "https://images.unsplash.com/photo-1531123897727-8f129e1688ce?w=150",
-              "https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?w=150",
-              "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=150",
-              "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150",
-            ].map((src, i) => (
-              <div key={i} className="w-10 h-10 rounded-full border-2 border-white overflow-hidden">
-                <Image
-                  src={src}
-                  alt={`Student ${i + 1}`}
-                  width={40}
-                  height={40}
-                  className="object-cover"
-                />
+            {[1, 2, 3, 4].map((i) => (
+              <div key={i} className="w-10 h-10 rounded-full bg-violet-100 border-2 border-white flex items-center justify-center">
+                <span className="text-violet-500 text-sm font-medium">S{i}</span>
               </div>
             ))}
           </div>
           <div>
             <p className="text-sm font-medium">
-              <span className="font-bold text-green-500">127 students</span> enrolled in the last 24 hours
+              <span className="font-bold text-green-500">127 students</span> enrolled in beta program
             </p>
-            <p className="text-xs text-gray-600">Early bird offer ends in 2 days</p>
+            <p className="text-xs text-gray-600">Early access offer ends in 2 days</p>
           </div>
         </div>
         <div className="flex items-center gap-2">
@@ -205,7 +247,7 @@ const SocialProofBanner = () => {
             <span className="relative inline-flex rounded-full h-3 w-3 bg-violet-500"></span>
           </span>
           <div className="text-sm">
-            <span className="font-bold text-violet-500">Live:</span> 1,234 students practicing now
+            <span className="font-bold text-violet-500">Live:</span> 234 students practicing
           </div>
         </div>
       </div>
@@ -737,91 +779,42 @@ const StudentResults = () => {
   return (
     <div className="mt-32">
       <div className="text-center mb-16">
-        <h2 className="text-4xl font-bold mb-4">Student Success Stories</h2>
+        <h2 className="text-4xl font-bold mb-4">Student Growth Stories</h2>
         <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-          Join thousands of students transforming their JEE preparation with Lumi AI
+          See how our beta users improved their performance
         </p>
       </div>
 
-      {/* Testimonials Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
         {[
           {
-            name: "Arjun Patel",
-            image: "https://images.unsplash.com/photo-1629872430082-93d8912beccf?w=800",
-            testimonial: "The adaptive tests helped me identify and improve my weak areas. My mock test scores improved by 65 percentile in just 2 months.",
-            stats: "Physics: 94/100",
-            city: "Mumbai"
+            growth: "156%",
+            subject: "Physics",
+            quote: "The AI mentor helped me understand complex concepts better"
           },
           {
-            name: "Priya Singh",
-            image: "https://images.unsplash.com/photo-1522202176988-66273c2fd55f?w=800",
-            testimonial: "Lumi AI's personalized study plan and real-time analysis completely changed my preparation strategy. It's like having a personal mentor 24/7.",
-            stats: "Chemistry: 98/100",
-            city: "Delhi"
+            growth: "143%",
+            subject: "Chemistry",
+            quote: "My test scores improved significantly after using the practice tests"
           },
           {
-            name: "Rahul Kumar",
-            image: "https://images.unsplash.com/photo-1523050854058-8df90110c9f1?w=800",
-            testimonial: "The detailed performance analytics helped me understand exactly where I was losing marks. My accuracy improved significantly.",
-            stats: "Mathematics: 96/100",
-            city: "Bangalore"
-          },
-          {
-            name: "Ananya Sharma",
-            image: "https://images.unsplash.com/photo-1523240795612-9a054b0db644?w=800",
-            testimonial: "The AI predictions were surprisingly accurate. It helped me focus on topics that needed more attention.",
-            stats: "Overall: 99.2 percentile",
-            city: "Hyderabad"
-          },
-          {
-            name: "Karthik R",
-            image: "https://images.unsplash.com/photo-1519389950473-47ba0277781c?w=800",
-            testimonial: "The quality of questions and instant solutions helped me build strong concepts. The AI mentor's suggestions were always on point.",
-            stats: "AIR under 1000",
-            city: "Chennai"
-          },
-          {
-            name: "Neha Gupta",
-            image: "https://images.unsplash.com/photo-1571260899304-425eee4c7efc?w=800",
-            testimonial: "From struggling with time management to completing papers with extra time - Lumi AI's analysis made this possible.",
-            stats: "98.8 percentile",
-            city: "Pune"
+            growth: "167%",
+            subject: "Mathematics",
+            quote: "The personalized study plan made a huge difference"
           }
-        ].map((testimonial, i) => (
-          <div key={i} className="p-8 rounded-2xl border border-gray-200 hover:border-black/20 transition-all">
-            <div className="flex items-start gap-4 mb-6">
-              <div className="w-12 h-12 rounded-full overflow-hidden flex-shrink-0">
-                <Image
-                  src={testimonial.image}
-                  alt={testimonial.name}
-                  width={48}
-                  height={48}
-                  className="object-cover"
-                />
-              </div>
-              <div>
-                <div className="font-medium text-lg">{testimonial.name}</div>
-                <div className="text-sm text-gray-500">{testimonial.city}</div>
-              </div>
+        ].map((story, i) => (
+          <div key={i} className="p-6 rounded-xl border border-gray-200">
+            <div className="text-3xl font-bold text-violet-500 mb-2">
+              {story.growth}
             </div>
-            <p className="text-gray-600 mb-4">"{testimonial.testimonial}"</p>
-            <div className="text-sm font-medium text-black">{testimonial.stats}</div>
-          </div>
-        ))}
-      </div>
-
-      {/* Success Metrics */}
-      <div className="mt-16 grid grid-cols-2 md:grid-cols-4 gap-8 p-8 rounded-2xl border border-gray-200 bg-violet-50">
-        {[
-          { label: "Average Score Improvement", value: "156%" },
-          { label: "Students in Top 1000", value: "45+" },
-          { label: "Selection Rate", value: "98%" },
-          { label: "Daily Active Students", value: "50K+" }
-        ].map((stat, i) => (
-          <div key={i} className="text-center">
-            <div className="text-3xl font-bold mb-1">{stat.value}</div>
-            <div className="text-sm text-gray-500">{stat.label}</div>
+            <div className="font-medium mb-2">Score Growth in {story.subject}</div>
+            <p className="text-gray-600 text-sm">"{story.quote}"</p>
+            <div className="mt-4 flex items-center gap-3">
+              <div className="w-8 h-8 rounded-full bg-violet-100 flex items-center justify-center">
+                <span className="text-violet-500 text-sm font-medium">S</span>
+              </div>
+              <div className="text-sm">Beta User</div>
+            </div>
           </div>
         ))}
       </div>
@@ -830,90 +823,186 @@ const StudentResults = () => {
 };
 
 // Component: PricingSection
-const PricingSection = () => {
+const PricingSection = ({ onEnrollClick }: { onEnrollClick: () => void }) => {
+  const [remainingSpots, setRemainingSpots] = useState(20);
+
+  useEffect(() => {
+    setRemainingSpots(Math.floor(Math.random() * 10) + 15);
+  }, []);
+
+  const originalPrice = 4999;
+  const discountPercent = 78;
+  const discountedPrice = 999;
+  
   return (
     <div className="mt-32">
-      <div className="text-center mb-16">
-        <h2 className="text-4xl font-bold mb-4">Simple, Transparent Pricing</h2>
-        <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-          Everything you need to crack JEE Mains 2024
-        </p>
-      </div>
+      <div className="max-w-[800px] mx-auto">
+        {/* Limited Time Offer Banner */}
+        <div className="bg-amber-50 border border-amber-200 rounded-full px-6 py-3 flex items-center justify-center gap-2 mb-4">
+          <span className="animate-pulse relative flex h-3 w-3">
+            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75"></span>
+            <span className="relative inline-flex rounded-full h-3 w-3 bg-amber-500"></span>
+          </span>
+          <p className="text-amber-800 font-medium">
+            Early Bird Offer: 78% off ends in 48 hours
+          </p>
+        </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-16">
-        {/* Price Column */}
-        <div className="space-y-8">
-          <div className="p-8 rounded-2xl border border-gray-200 bg-white">
-            <div className="flex items-end gap-2 mb-6">
-              <span className="text-5xl font-bold">₹999</span>
-              <span className="text-gray-500 mb-1">/month</span>
+        {/* Social Proof Mini-Banner */}
+        <div className="bg-violet-50 rounded-full px-6 py-2 flex items-center justify-center gap-2 mb-8">
+          <span className="text-violet-600 text-sm">
+            🎯 127 students enrolled in the last 24 hours
+          </span>
+        </div>
+
+        {/* Pricing Card */}
+        <div className="bg-white border border-gray-200 rounded-2xl overflow-hidden">
+          <div className="p-8">
+            <div className="flex justify-between items-start mb-6">
+              <div>
+                <h3 className="text-2xl font-bold mb-2">Complete JEE Test Series 2024</h3>
+                <p className="text-gray-600">One-time payment for full access</p>
+              </div>
+              <div className="text-right">
+                <div className="flex items-center gap-2 mb-1">
+                  <span className="text-3xl font-bold">₹{discountedPrice}</span>
+                  <span className="text-sm text-gray-500 line-through">₹{originalPrice}</span>
+                </div>
+                <div className="inline-block bg-green-100 text-green-700 text-sm font-medium px-2 py-1 rounded">
+                  Save ₹{originalPrice - discountedPrice} Today
+                </div>
+              </div>
             </div>
+
+            {/* Enhanced Feature List */}
             <div className="space-y-4 mb-8">
-              <div className="flex items-center gap-2 text-gray-600">
-                <svg className="w-5 h-5 text-black" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                </svg>
-                <span>Full access to all features</span>
+              <div className="flex items-center gap-3">
+                <div className="flex-shrink-0 w-8 h-8 bg-violet-50 rounded-lg flex items-center justify-center">
+                  <svg className="w-5 h-5 text-violet-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                </div>
+                <div>
+                  <span className="font-medium">20 Full-length JEE Mock Tests</span>
+                  <p className="text-sm text-gray-500">Exactly matching JEE pattern</p>
+                </div>
               </div>
-              <div className="flex items-center gap-2 text-gray-600">
-                <svg className="w-5 h-5 text-black" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                </svg>
-                <span>Unlimited practice tests</span>
+              <div className="flex items-center gap-3">
+                <div className="flex-shrink-0 w-8 h-8 bg-violet-50 rounded-lg flex items-center justify-center">
+                  <svg className="w-5 h-5 text-violet-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                </div>
+                <div>
+                  <span className="font-medium">50+ Chapter-wise Tests</span>
+                  <p className="text-sm text-gray-500">Cover entire JEE syllabus</p>
+                </div>
               </div>
-              <div className="flex items-center gap-2 text-gray-600">
-                <svg className="w-5 h-5 text-black" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                </svg>
-                <span>AI-powered analysis</span>
+              <div className="flex items-center gap-3">
+                <div className="flex-shrink-0 w-8 h-8 bg-violet-50 rounded-lg flex items-center justify-center">
+                  <svg className="w-5 h-5 text-violet-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                </div>
+                <div>
+                  <span className="font-medium">AI-powered Performance Analysis</span>
+                  <p className="text-sm text-gray-500">Track your progress in real-time</p>
+                </div>
+              </div>
+              <div className="flex items-center gap-3">
+                <div className="flex-shrink-0 w-8 h-8 bg-violet-50 rounded-lg flex items-center justify-center">
+                  <svg className="w-5 h-5 text-violet-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                </div>
+                <div>
+                  <span className="font-medium">24/7 AI Doubt Support</span>
+                  <p className="text-sm text-gray-500">Never get stuck in preparation</p>
+                </div>
               </div>
             </div>
-            <button className="w-full px-6 py-3 bg-violet-500 text-white rounded-full hover:bg-violet-600 transition-colors">
-              Get Started Now
-            </button>
+
+            {/* Urgency Elements */}
+            <div className="mb-6 p-4 bg-amber-50 rounded-lg">
+              <div className="flex items-center gap-2 text-amber-800 mb-2">
+                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <span className="font-medium">Limited Time Offer</span>
+              </div>
+              <p className="text-sm text-amber-700">
+                Price increases to ₹{originalPrice} after January 31st. Lock in the lowest price now!
+              </p>
+            </div>
+
+            <div className="space-y-4">
+              <EnrollButton onClick={onEnrollClick} />
+              <p className="text-sm text-gray-500 text-center">
+                Only {remainingSpots} spots remaining at this price
+              </p>
+            </div>
+          </div>
+
+          {/* Enhanced Trust Indicators */}
+          <div className="bg-gray-50 p-6 border-t border-gray-200">
+            <div className="grid grid-cols-2 gap-6">
+              <div className="space-y-3">
+                <div className="font-medium text-black">What's included:</div>
+                <ul className="space-y-2 text-sm text-gray-600">
+                  <li className="flex items-center gap-2">
+                    <svg className="w-4 h-4 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                    </svg>
+                    Access until JEE Mains 2024
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <svg className="w-4 h-4 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                    </svg>
+                    Detailed video solutions
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <svg className="w-4 h-4 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                    </svg>
+                    Performance analytics
+                  </li>
+                </ul>
+              </div>
+              <div className="space-y-3">
+                <div className="font-medium text-black">Refund Policy:</div>
+                <ul className="space-y-2 text-sm text-gray-600">
+                  <li className="flex items-center gap-2">
+                    <svg className="w-4 h-4 text-amber-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    24-hour refund window
+                  </li>
+                  <li className="flex items-center gap-2 text-xs text-gray-500">
+                    <span>*Only if no tests attempted</span>
+                  </li>
+                </ul>
+              </div>
+            </div>
           </div>
         </div>
 
-        {/* Features Column */}
-        <div className="space-y-8">
-          <h3 className="text-2xl font-bold mb-6">Everything you get:</h3>
-          <div className="grid gap-6">
-            {[
-              {
-                title: "Complete Test Series",
-                desc: "20 Full Mock Tests + 50 Chapter Tests"
-              },
-              {
-                title: "AI-Powered Analysis",
-                desc: "Real-time performance tracking and predictions"
-              },
-              {
-                title: "Video Solutions",
-                desc: "Detailed video explanations for all questions"
-              },
-              {
-                title: "Personal AI Mentor",
-                desc: "24/7 doubt solving and guidance"
-              },
-              {
-                title: "Performance Reports",
-                desc: "Detailed analysis after each test"
-              },
-              {
-                title: "Mobile Access",
-                desc: "Practice anywhere, anytime"
-              }
-            ].map((feature, i) => (
-              <div key={i} className="flex gap-4">
-                <div className="w-8 h-8 rounded-full bg-black/5 flex items-center justify-center flex-shrink-0">
-                  <span className="text-sm font-medium">{i + 1}</span>
-                </div>
-                <div>
-                  <div className="font-medium mb-1">{feature.title}</div>
-                  <div className="text-sm text-gray-600">{feature.desc}</div>
-                </div>
-              </div>
-            ))}
+        {/* Update Trust Badges */}
+        <div className="mt-8">
+          <div className="text-center mb-4 text-sm text-gray-500">Secure Payment</div>
+          <div className="flex items-center justify-center gap-8 text-sm text-gray-500">
+            <div className="flex items-center gap-2">
+              <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+              </svg>
+              <span>256-bit SSL Security</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              <span>Secure Payment Options</span>
+            </div>
           </div>
         </div>
       </div>
@@ -957,6 +1046,10 @@ const FAQSection = () => {
           {
             q: "What if I need help while practicing?",
             a: "Our AI mentor is available 24/7 to help you with doubts, and we provide detailed video solutions for all questions."
+          },
+          {
+            q: "What is your refund policy?",
+            a: "We offer a 24-hour refund window from the time of account activation, but only if you haven't attempted any tests. Once you start a test, or after 24 hours, no refunds will be provided."
           }
         ].map((faq, i) => (
           <div key={i} className="p-6 rounded-xl border border-gray-200">
@@ -970,7 +1063,7 @@ const FAQSection = () => {
 };
 
 // Component: FinalCTA
-const FinalCTA = () => {
+const FinalCTA = ({ onEnrollClick }: { onEnrollClick: () => void }) => {
   return (
     <div className="mt-32">
       <div className="p-16 md:p-24 rounded-2xl bg-violet-900 text-white text-center">
@@ -978,15 +1071,11 @@ const FinalCTA = () => {
           Ready to start your JEE preparation?
         </h2>
         <p className="text-xl text-gray-400 mb-12 max-w-2xl mx-auto">
-          Join thousands of successful JEE aspirants preparing with our AI-powered platform.
+          Join thousands of successful JEE aspirants preparing with our AI-powered platform. 
+          Try our AI technology on <a href="https://lumineet.com" className="text-white underline hover:text-violet-200">Lumi NEET</a>
         </p>
-        <div className="flex flex-col sm:flex-row gap-4 justify-center">
-          <button className="px-8 py-4 bg-white text-black rounded-full hover:bg-gray-100 transition-colors font-medium">
-            Enroll Now
-          </button>
-          <button className="px-8 py-4 border border-white/20 rounded-full hover:bg-white/10 transition-colors text-white">
-            View Sample Test
-          </button>
+        <div className="flex justify-center">
+          <EnrollButton onClick={onEnrollClick} />
         </div>
       </div>
     </div>
@@ -1000,11 +1089,13 @@ const Footer = () => {
       <div className="max-w-[1200px] mx-auto px-6">
         <div className="flex flex-col md:flex-row justify-between items-center gap-8">
           <div className="flex items-center gap-8">
-            <span className="font-medium">Lumi AI</span>
+            <Link href="https://jeetestseries.com" className="font-medium">
+              Lumi AI
+            </Link>
             <div className="flex items-center gap-6 text-sm text-[#1E3A8A]/60">
-              <a href="#" className="hover:text-[#1E3A8A] transition-colors">Terms</a>
-              <a href="#" className="hover:text-[#1E3A8A] transition-colors">Privacy</a>
-              <a href="#" className="hover:text-[#1E3A8A] transition-colors">Help</a>
+              <a href="https://jeetestseries.com/terms" className="hover:text-[#1E3A8A] transition-colors">Terms</a>
+              <a href="https://jeetestseries.com/privacy" className="hover:text-[#1E3A8A] transition-colors">Privacy</a>
+              <a href="https://jeetestseries.com/help" className="hover:text-[#1E3A8A] transition-colors">Help</a>
             </div>
           </div>
           <div className="flex items-center gap-6">

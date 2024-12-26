@@ -94,63 +94,126 @@ export default function Home() {
 
 // Component: Header
 const Header = ({ onEnrollClick }: { onEnrollClick: () => void }) => {
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+
+  // Update menuItems to match actual sections
+  const menuItems = [
+    { label: 'Features', href: '#features' },
+    { label: 'Results', href: '#results' },
+    { label: 'Pricing', href: '#pricing' },
+    { label: 'FAQ', href: '#faq' },
+  ];
+
   return (
-    <header className="fixed top-0 left-0 right-0 z-50 bg-white border-b border-gray-100">
-      <div className="max-w-[1400px] mx-auto px-4 sm:px-6">
-        <nav className="flex items-center justify-between h-[72px]">
-          {/* Logo */}
-          <Link href="https://jeetestseries.com" className="flex items-center gap-2">
-            <div className="w-8 h-8 bg-black rounded flex items-center justify-center">
-              <span className="text-white font-medium">L</span>
-            </div>
-            <span className="text-lg font-medium hidden sm:inline">Lumi AI</span>
-          </Link>
+    <>
+      <header className="fixed top-0 left-0 right-0 z-50 bg-white/90 backdrop-blur-sm border-b border-gray-100 w-screen overflow-x-hidden">
+        <div className="max-w-7xl mx-auto px-4">
+          <nav className="flex items-center justify-between h-16">
+            {/* Logo */}
+            <Link href="/" className="flex items-center gap-2 flex-shrink-0">
+              <div className="w-8 h-8 bg-violet-600 rounded-lg flex items-center justify-center">
+                <span className="text-white font-semibold">L</span>
+              </div>
+              <span className="text-base sm:text-lg font-medium">Lumi AI</span>
+            </Link>
 
-          {/* Timer - Hide on mobile */}
-          <div className="hidden md:flex items-center gap-2">
-            <span className="text-sm text-gray-600">
-              Test Series starts in:
-            </span>
-            <div className="flex items-center gap-1 text-sm font-medium">
-              <div className="w-10 h-8 flex items-center justify-center bg-violet-50 rounded">
-                <span className="text-violet-700">12</span>
+            {/* Desktop Navigation */}
+            <div className="hidden md:flex items-center gap-4 lg:gap-6">
+              {menuItems.map((item) => (
+                <a
+                  key={item.href}
+                  href={item.href}
+                  className="text-sm text-gray-600 hover:text-gray-900 transition-colors whitespace-nowrap"
+                >
+                  {item.label}
+                </a>
+              ))}
+            </div>
+
+            {/* Right Section */}
+            <div className="flex items-center gap-2 sm:gap-4 flex-shrink-0">
+              {/* Timer - Desktop only */}
+              <div className="hidden lg:flex items-center gap-2">
+                <span className="text-sm text-gray-500 whitespace-nowrap">Starts in:</span>
+                <span className="text-sm font-medium text-violet-600 whitespace-nowrap">12:08:45</span>
               </div>
-              <span>:</span>
-              <div className="w-8 h-8 flex items-center justify-center bg-violet-50 rounded">
-                <span className="text-violet-700">08</span>
-              </div>
-              <span>:</span>
-              <div className="w-8 h-8 flex items-center justify-center bg-violet-50 rounded">
-                <span className="text-violet-700">45</span>
+
+              {/* Enroll Button - Desktop */}
+              <button
+                onClick={onEnrollClick}
+                className="hidden md:block px-4 py-2 bg-violet-600 text-white text-sm font-medium rounded-lg hover:bg-violet-700 transition-colors whitespace-nowrap"
+              >
+                Enroll Now
+              </button>
+
+              {/* Mobile Menu Button */}
+              <button
+                onClick={() => setIsMenuOpen(!isMenuOpen)}
+                className="md:hidden p-2 text-gray-600 hover:text-gray-900"
+                aria-label="Menu"
+              >
+                {!isMenuOpen ? (
+                  <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+                  </svg>
+                ) : (
+                  <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                )}
+              </button>
+            </div>
+          </nav>
+
+          {/* Mobile Menu */}
+          <div
+            className={`md:hidden transition-all duration-200 ease-in-out ${
+              isMenuOpen ? 'h-auto opacity-100 visible' : 'h-0 opacity-0 invisible'
+            }`}
+          >
+            <div className="py-2 space-y-1">
+              {menuItems.map((item) => (
+                <a
+                  key={item.href}
+                  href={item.href}
+                  className="block px-4 py-2 text-base text-gray-600 hover:text-gray-900 hover:bg-gray-50 rounded-lg"
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                  {item.label}
+                </a>
+              ))}
+              <div className="px-4 py-2 text-sm text-gray-500">
+                Starts in: <span className="font-medium text-violet-600">12:08:45</span>
               </div>
             </div>
           </div>
+        </div>
+      </header>
 
-          {/* Mobile Timer */}
-          <div className="flex md:hidden items-center gap-1 text-sm font-medium">
-            <div className="w-8 h-8 flex items-center justify-center bg-violet-50 rounded">
-              <span className="text-violet-700">12</span>
-            </div>
-            <span>:</span>
-            <div className="w-8 h-8 flex items-center justify-center bg-violet-50 rounded">
-              <span className="text-violet-700">08</span>
-            </div>
+      {/* Mobile Fixed Bottom CTA */}
+      <div className="md:hidden fixed bottom-0 left-0 right-0 z-50 w-screen overflow-x-hidden">
+        <div className="bg-white border-t border-gray-100">
+          <div className="max-w-7xl mx-auto px-4 py-4">
+            <button
+              onClick={onEnrollClick}
+              className="w-full py-2.5 bg-violet-600 text-white font-medium rounded-lg hover:bg-violet-700 transition-colors"
+            >
+              Enroll Now
+            </button>
           </div>
-
-          {/* CTA Button */}
-          <div className="flex-shrink-0">
-            <EnrollButton onClick={onEnrollClick} />
-          </div>
-        </nav>
+        </div>
       </div>
-    </header>
+
+      {/* Spacer for fixed bottom CTA */}
+      <div className="md:hidden h-[72px]" aria-hidden="true" />
+    </>
   );
 };
 
 // Component: HeroSection
 const HeroSection = ({ onEnrollClick }: { onEnrollClick: () => void }) => {
   return (
-    <div className="pt-32 pb-20">
+    <div className="pt-16 sm:pt-32 pb-20">
       <div className="max-w-[1000px] mx-auto text-center">
         <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-violet-50 text-black text-sm font-medium mb-6">
           <span className="relative flex h-2 w-2">
@@ -159,15 +222,15 @@ const HeroSection = ({ onEnrollClick }: { onEnrollClick: () => void }) => {
           </span>
           India's Most Advanced JEE Test Series
         </div>
-        <h1 className="text-[72px] leading-[1.1] font-medium tracking-[-0.02em] mb-6">
+        <h1 className="text-4xl sm:text-[72px] leading-[1.2] sm:leading-[1.1] font-medium tracking-[-0.02em] mb-6">
           Master JEE 2024 with
           <br />
           <span className="text-black">Lumi AI Test Series</span>
         </h1>
-        <p className="text-xl text-gray-600 mb-12 max-w-[600px] mx-auto">
+        <p className="text-lg sm:text-xl text-gray-600 mb-8 sm:mb-12 max-w-[600px] mx-auto px-4 sm:px-0">
           Join 50,000+ JEE aspirants experiencing personalized preparation with AI-powered adaptive tests and real-time analytics.
         </p>
-        <div className="flex items-center justify-center gap-4 mb-16">
+        <div className="flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-6 mb-16 px-4 sm:px-0">
           <EnrollButton onClick={onEnrollClick} />
           <a 
             href="https://lumineet.com" 
@@ -1089,23 +1152,27 @@ const FinalCTA = ({ onEnrollClick }: { onEnrollClick: () => void }) => {
 // Component: Footer
 const Footer = () => {
   return (
-    <footer className="mt-32 py-12 border-t border-[#E2E8F0]">
-      <div className="max-w-[1200px] mx-auto px-6">
-        <div className="flex flex-col md:flex-row justify-between items-center gap-8">
-          <div className="flex items-center gap-8">
-            <Link href="https://jeetestseries.com" className="font-medium">
+    <footer className="mt-32 py-8 sm:py-12 border-t border-gray-200">
+      <div className="w-full max-w-7xl mx-auto px-4">
+        <div className="flex flex-col gap-8">
+          {/* Mobile Footer */}
+          <div className="flex flex-col items-center gap-6 md:hidden">
+            <Link href="/" className="font-medium text-gray-900">
               Lumi AI
             </Link>
-            <div className="flex items-center gap-6 text-sm text-[#1E3A8A]/60">
-              <a href="https://jeetestseries.com/terms" className="hover:text-[#1E3A8A] transition-colors">Terms</a>
-              <a href="https://jeetestseries.com/privacy" className="hover:text-[#1E3A8A] transition-colors">Privacy</a>
-              <a href="https://jeetestseries.com/help" className="hover:text-[#1E3A8A] transition-colors">Help</a>
+            <div className="text-sm text-gray-500 text-center">
+              © 2024 Lumi AI. All rights reserved.
             </div>
           </div>
-          <div className="flex items-center gap-6">
-            <span className="text-sm text-[#1E3A8A]/60">
+
+          {/* Desktop Footer */}
+          <div className="hidden md:flex justify-between items-center">
+            <Link href="/" className="font-medium text-gray-900">
+              Lumi AI
+            </Link>
+            <div className="text-sm text-gray-500">
               © 2024 Lumi AI. All rights reserved.
-            </span>
+            </div>
           </div>
         </div>
       </div>

@@ -13,154 +13,161 @@ export default function EnrollmentForm({ onClose }: EnrollmentFormProps) {
     phone: '',
     city: ''
   });
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState('');
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+    setIsSubmitting(true);
+    setError('');
+
     try {
       const response = await fetch('/api/enrollments', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          ...formData,
-          enrollmentDate: new Date().toISOString(),
-          status: 'pending'
-        }),
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(formData)
       });
 
-      const result = await response.json();
+      const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(result.error || result.details || 'Failed to save enrollment');
+        throw new Error(data.error || 'Failed to submit');
       }
 
-      // Success - redirect to payment
-      const paymentUrl = new URL('https://rzp.io/rzp/tEYEGpT');
+      const paymentUrl = new URL('https://rzp.io/l/tEYEGpT');
       paymentUrl.searchParams.append('prefill[email]', formData.email);
       paymentUrl.searchParams.append('prefill[contact]', formData.phone);
       paymentUrl.searchParams.append('prefill[name]', formData.name);
       
       window.location.href = paymentUrl.toString();
-    } catch (error) {
-      console.error('Error processing enrollment:', error);
-      alert(error instanceof Error ? error.message : 'Something went wrong. Please try again.');
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Something went wrong');
+      setIsSubmitting(false);
     }
   };
 
   return (
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-      <div className="bg-white rounded-2xl p-8 max-w-md w-full mx-4">
-        <div className="flex justify-between items-center mb-6">
-          <h2 className="text-2xl font-bold">Enroll Now</h2>
-          <button 
+    <div 
+      className="fixed inset-0 z-50 overflow-y-auto bg-black/50" 
+      onClick={onClose}
+    >
+      <div className="min-h-screen px-4 text-center flex items-center justify-center">
+        <div 
+          className="relative w-full max-w-md p-6 mx-auto my-8 text-left bg-white rounded-2xl shadow-xl transform transition-all max-h-[90vh] overflow-y-auto"
+          onClick={e => e.stopPropagation()}
+        >
+          {/* Close button - Fixed position */}
+          <button
             onClick={onClose}
-            className="text-gray-500 hover:text-black"
+            className="absolute top-4 right-4 text-gray-400 hover:text-gray-500 focus:outline-none z-10"
           >
-            ✕
+            <span className="sr-only">Close</span>
+            <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+            </svg>
           </button>
-        </div>
 
-        <div className="mb-6 p-4 bg-amber-50 border border-amber-200 rounded-lg">
-          <p className="text-sm text-amber-800 font-medium mb-2">⚠️ Important:</p>
-          <p className="text-sm text-amber-700">
-            Please use the same email and phone number in the payment page. 
-            Your account will only be activated if the details match.
-          </p>
-        </div>
-
-        <div className="mb-6 p-4 bg-violet-50 rounded-lg">
-          <p className="text-sm text-violet-700">
-            <span className="font-medium">How it works:</span>
-            <br />
-            1. Fill in your details below
-            <br />
-            2. Complete the payment with the same email & phone
-            <br />
-            3. Your account will be activated within 10 hours
-          </p>
-        </div>
-
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Full Name
-            </label>
-            <input
-              type="text"
-              required
-              className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-violet-500"
-              value={formData.name}
-              onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-            />
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Email
-              <span className="text-amber-600 ml-1">*use same email for payment</span>
-            </label>
-            <input
-              type="email"
-              required
-              className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-violet-500"
-              value={formData.email}
-              onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-            />
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Phone Number
-              <span className="text-amber-600 ml-1">*use same number for payment</span>
-            </label>
-            <input
-              type="tel"
-              required
-              pattern="[0-9]{10}"
-              maxLength={10}
-              placeholder="10-digit mobile number"
-              className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-violet-500"
-              value={formData.phone}
-              onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-            />
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              City
-            </label>
-            <input
-              type="text"
-              required
-              className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-violet-500"
-              value={formData.city}
-              onChange={(e) => setFormData({ ...formData, city: e.target.value })}
-            />
-          </div>
-
-          <div className="text-sm text-gray-500 mt-4">
-            <p className="mb-2">After payment, you'll receive an email with further instructions.</p>
-            <p className="text-amber-600 font-medium">
-              Note: Account activation may be delayed if payment details don't match.
+          <div className="mb-6">
+            <h2 className="text-2xl font-bold text-gray-900 pr-8">
+              Enroll Now
+            </h2>
+            <p className="mt-2 text-sm text-gray-500">
+              Join our AI-powered JEE test series and start your preparation today.
             </p>
           </div>
 
-          <div className="mt-4 flex items-center gap-2 text-sm text-gray-500">
-            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-            </svg>
-            <span>All payments are processed on a secure payment gateway</span>
+          {/* Important Notice */}
+          <div className="mb-6 p-4 bg-amber-50 border border-amber-200 rounded-lg">
+            <p className="text-sm text-amber-800">
+              <span className="font-medium">⚠️ Important:</span> Please use the same email and phone 
+              number for payment. Your account will be activated after payment verification.
+            </p>
           </div>
 
-          <button
-            type="submit"
-            className="w-full px-6 py-3 bg-violet-500 text-white rounded-full hover:bg-violet-600 transition-colors font-medium"
-          >
-            Proceed to Payment • ₹999
-          </button>
-        </form>
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <div>
+              <label htmlFor="name" className="block text-sm font-medium text-gray-700">
+                Full Name
+              </label>
+              <input
+                type="text"
+                id="name"
+                required
+                className="mt-1 block w-full rounded-lg border border-gray-300 px-3 py-2 shadow-sm focus:border-violet-500 focus:outline-none focus:ring-1 focus:ring-violet-500"
+                value={formData.name}
+                onChange={e => setFormData(prev => ({ ...prev, name: e.target.value }))}
+              />
+            </div>
+
+            <div>
+              <label htmlFor="email" className="block text-sm font-medium text-gray-700">
+                Email Address <span className="text-amber-600 text-xs">*use same for payment</span>
+              </label>
+              <input
+                type="email"
+                id="email"
+                required
+                className="mt-1 block w-full rounded-lg border border-gray-300 px-3 py-2 shadow-sm focus:border-violet-500 focus:outline-none focus:ring-1 focus:ring-violet-500"
+                value={formData.email}
+                onChange={e => setFormData(prev => ({ ...prev, email: e.target.value }))}
+              />
+            </div>
+
+            <div>
+              <label htmlFor="phone" className="block text-sm font-medium text-gray-700">
+                Phone Number <span className="text-amber-600 text-xs">*use same for payment</span>
+              </label>
+              <input
+                type="tel"
+                id="phone"
+                required
+                pattern="[0-9]{10}"
+                maxLength={10}
+                placeholder="10-digit mobile number"
+                className="mt-1 block w-full rounded-lg border border-gray-300 px-3 py-2 shadow-sm focus:border-violet-500 focus:outline-none focus:ring-1 focus:ring-violet-500"
+                value={formData.phone}
+                onChange={e => setFormData(prev => ({ ...prev, phone: e.target.value }))}
+              />
+            </div>
+
+            <div>
+              <label htmlFor="city" className="block text-sm font-medium text-gray-700">
+                City
+              </label>
+              <input
+                type="text"
+                id="city"
+                required
+                className="mt-1 block w-full rounded-lg border border-gray-300 px-3 py-2 shadow-sm focus:border-violet-500 focus:outline-none focus:ring-1 focus:ring-violet-500"
+                value={formData.city}
+                onChange={e => setFormData(prev => ({ ...prev, city: e.target.value }))}
+              />
+            </div>
+
+            {error && (
+              <div className="text-red-500 text-sm mt-2">
+                {error}
+              </div>
+            )}
+
+            <div className="mt-6">
+              <button
+                type="submit"
+                disabled={isSubmitting}
+                className="w-full flex justify-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-violet-600 hover:bg-violet-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-violet-500 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {isSubmitting ? 'Processing...' : 'Proceed to Payment • ₹999'}
+              </button>
+            </div>
+
+            <div className="mt-4 flex items-center gap-2 text-sm text-gray-500">
+              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+              </svg>
+              <span>Secure payment powered by Razorpay</span>
+            </div>
+          </form>
+        </div>
       </div>
     </div>
   );

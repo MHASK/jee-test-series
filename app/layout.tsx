@@ -1,22 +1,19 @@
-import type { Metadata } from "next";
-import { Inter } from "next/font/google";
-import "./globals.css";
-
-const inter = Inter({ subsets: ["latin"] });
+import './globals.css'
+import type { Metadata } from 'next'
 
 export const metadata: Metadata = {
-  title: "Lumi AI - JEE Test Series",
-  description: "AI-powered JEE test series for better preparation",
-};
+  title: 'JEE Test Series - Lumi AI',
+  description: 'AI-powered JEE test series with personalized insights',
+}
 
 export default function RootLayout({
   children,
 }: {
-  children: React.ReactNode;
+  children: React.ReactNode
 }) {
   return (
     <html lang="en">
-      <body className={`${inter.className} antialiased`}>{children}</body>
+      <body>{children}</body>
     </html>
-  );
+  )
 }

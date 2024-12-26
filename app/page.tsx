@@ -10,7 +10,12 @@ async function testApiConnection() {
   try {
     const response = await fetch('/api/enrollments');
     const data = await response.json();
-    console.log('API connection test:', data);
+    
+    if (data.status === 'healthy') {
+      console.log('API connection test: Success');
+    } else {
+      console.warn('API connection test: Unhealthy', data);
+    }
   } catch (error) {
     console.error('API test failed:', error);
   }
@@ -1016,27 +1021,27 @@ const FAQSection = () => {
       <div className="text-center mb-16">
         <h2 className="text-4xl font-bold mb-4">Frequently Asked Questions</h2>
         <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-          Everything you need to know about PrepAI
+          Everything you need to know about our Test Series
         </p>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
         {[
           {
-            q: "How does the AI-powered analysis work?",
-            a: "Our AI analyzes your performance patterns, time management, and question-solving approach to provide personalized insights and recommendations."
+            q: "How many tests are included?",
+            a: "You get access to 16 full-length mock tests and 4 module-wise tests, all following the latest JEE pattern."
           },
           {
             q: "Is the test interface exactly like JEE Mains?",
             a: "Yes, we provide an exact replica of the JEE Mains interface, including the calculator, question palette, and marking scheme."
           },
           {
-            q: "How many mock tests are included?",
-            a: "You get access to 20 full-length mock tests, plus chapter-wise tests and previous year papers."
+            q: "How does the AI-powered analysis work?",
+            a: "Our AI analyzes your performance patterns, time management, and question-solving approach to provide personalized insights and recommendations."
           },
           {
-            q: "Can I access PrepAI on mobile?",
-            a: "Yes, PrepAI is fully responsive and works seamlessly on all devices - mobile, tablet, and desktop."
+            q: "Can I access the tests on mobile?",
+            a: "Yes, our platform is fully responsive and works seamlessly on all devices - mobile, tablet, and desktop."
           },
           {
             q: "How accurate are the AI predictions?",
@@ -1165,7 +1170,7 @@ const AIFeatures = () => {
                   <div className="h-24 bg-blue-50 rounded-xl animate-pulse"></div>
                   <div className="h-24 bg-blue-50 rounded-xl animate-pulse"></div>
                 </div>
-                <div className="h-40 bg-gradient-to-r from-blue-50 to-blue-100 rounded-xl animate-pulse"></div>
+                <div className="h-40 bg-gradient-to-r from-blue-50 via-purple-50 to-blue-50 rounded-xl animate-pulse"></div>
               </div>
               {/* Decorative Elements */}
               <div className="absolute top-4 right-4 flex items-center gap-2">

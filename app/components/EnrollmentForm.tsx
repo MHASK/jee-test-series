@@ -18,7 +18,6 @@ export default function EnrollmentForm({ onClose }: EnrollmentFormProps) {
     e.preventDefault();
     
     try {
-      // Save enrollment data via API
       const response = await fetch('/api/enrollments', {
         method: 'POST',
         headers: {
@@ -34,16 +33,15 @@ export default function EnrollmentForm({ onClose }: EnrollmentFormProps) {
       const result = await response.json();
 
       if (!response.ok) {
-        throw new Error(result.error || 'Failed to save enrollment');
+        throw new Error(result.error || result.details || 'Failed to save enrollment');
       }
 
-      // Add user details to payment link as URL parameters
+      // Success - redirect to payment
       const paymentUrl = new URL('https://rzp.io/rzp/tEYEGpT');
       paymentUrl.searchParams.append('prefill[email]', formData.email);
       paymentUrl.searchParams.append('prefill[contact]', formData.phone);
       paymentUrl.searchParams.append('prefill[name]', formData.name);
       
-      // Redirect to Razorpay payment link
       window.location.href = paymentUrl.toString();
     } catch (error) {
       console.error('Error processing enrollment:', error);

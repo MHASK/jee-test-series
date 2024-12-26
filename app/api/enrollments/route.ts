@@ -1,147 +1,100 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { GoogleSpreadsheet } from 'google-spreadsheet';
-import { JWT } from 'google-auth-library';
+import { google } from 'googleapis';
+import { NextResponse } from 'next/server';
 
-async function getSheet() {
+// Initialize Google Sheets
+async function initializeSheets() {
   try {
-    const SHEET_ID = process.env.SHEET_ID;
-    const GOOGLE_SHEETS_CLIENT_EMAIL = process.env.GOOGLE_SHEETS_CLIENT_EMAIL;
-    const GOOGLE_SHEETS_PRIVATE_KEY = process.env.GOOGLE_SHEETS_PRIVATE_KEY;
-
-    console.log('Checking credentials:', {
-      hasSheetId: !!SHEET_ID,
-      hasEmail: !!GOOGLE_SHEETS_CLIENT_EMAIL,
-      hasKey: !!GOOGLE_SHEETS_PRIVATE_KEY?.length
-    });
-
-    if (!SHEET_ID || !GOOGLE_SHEETS_CLIENT_EMAIL || !GOOGLE_SHEETS_PRIVATE_KEY) {
-      throw new Error('Missing Google Sheets configuration');
-    }
-
-    // Create JWT
-    const jwt = new JWT({
-      email: GOOGLE_SHEETS_CLIENT_EMAIL,
-      key: GOOGLE_SHEETS_PRIVATE_KEY.replace(/\\n/g, '\n'),
+    const auth = new google.auth.GoogleAuth({
+      credentials: {
+        client_email: process.env.GOOGLE_SHEETS_CLIENT_EMAIL,
+        private_key: process.env.GOOGLE_SHEETS_PRIVATE_KEY?.replace(/\\n/g, '\n')
+      },
       scopes: ['https://www.googleapis.com/auth/spreadsheets']
     });
 
-    // Initialize sheet
-    const doc = new GoogleSpreadsheet(SHEET_ID, jwt);
-    await doc.loadInfo();
-    console.log('Sheet loaded:', doc.title);
-
-    const sheet = doc.sheetsByIndex[0];
-    if (!sheet) {
-      throw new Error('No sheet found');
-    }
-
-    // Load headers first
-    await sheet.loadHeaderRow();
-    console.log('Current headers:', sheet.headerValues);
-
-    // Initialize headers if they don't exist
-    if (!sheet.headerValues || sheet.headerValues.length === 0) {
-      const headers = ['name', 'email', 'phone', 'city', 'created_at', 'status', 'amount'];
-      await sheet.setHeaderRow(headers);
-      console.log('Headers initialized:', headers);
-    }
-
-    return sheet;
+    const sheets = google.sheets({ version: 'v4', auth });
+    return sheets;
   } catch (error) {
-    console.error('Sheet initialization error:', {
-      message: error.message,
-      name: error.name,
-      stack: error.stack
-    });
+    if (error instanceof Error) {
+      console.error('Sheet initialization error:', {
+        message: error.message,
+        name: error.name,
+        stack: error.stack
+      });
+    } else {
+      console.error('Unknown sheet initialization error:', error);
+    }
     throw error;
   }
 }
 
+// Health check endpoint
 export async function GET() {
   try {
-    const sheet = await getSheet();
+    const sheets = await initializeSheets();
     
     // Test sheet access
-    const rows = await sheet.getRows({ limit: 1 });
-    
+    const response = await sheets.spreadsheets.values.get({
+      spreadsheetId: process.env.SHEET_ID,
+      range: 'Sheet1!A1:F1'
+    });
+
     return NextResponse.json({ 
       status: 'healthy',
-      sheetTitle: sheet.title,
-      rowCount: sheet.rowCount,
-      headers: sheet.headerValues,
-      timestamp: new Date().toISOString()
+      headers: response.data.values?.[0] || []
     });
   } catch (error) {
-    console.error('Health check failed:', {
-      message: error.message,
-      name: error.name,
-      stack: error.stack
-    });
     return NextResponse.json(
-      { 
-        status: 'unhealthy',
-        error: 'Service unavailable',
-        details: error.message
-      },
-      { status: 503 }
+      { status: 'unhealthy', error: error instanceof Error ? error.message : 'Unknown error' },
+      { status: 500 }
     );
   }
 }
 
-export async function POST(req: NextRequest) {
+// Enrollment endpoint
+export async function POST(request: Request) {
   try {
-    const sheet = await getSheet();
-    const data = await req.json();
+    const sheets = await initializeSheets();
+    const body = await request.json();
 
-    console.log('Processing enrollment for:', data.email);
-
-    // Validate data
-    if (!data.name || !data.email || !data.phone || !data.city) {
-      return NextResponse.json(
-        { error: 'Missing required fields' },
-        { status: 400 }
-      );
+    // Validate required fields
+    const requiredFields = ['name', 'email', 'phone', 'city'];
+    for (const field of requiredFields) {
+      if (!body[field]) {
+        return NextResponse.json(
+          { error: `Missing required field: ${field}` },
+          { status: 400 }
+        );
+      }
     }
 
-    // Check for existing email
-    const rows = await sheet.getRows();
-    const existingEmail = rows.find(row => row.get('email') === data.email);
-    
-    if (existingEmail) {
-      return NextResponse.json(
-        { error: 'Email already registered' },
-        { status: 400 }
-      );
-    }
-
-    // Add new enrollment
-    const result = await sheet.addRow({
-      name: data.name,
-      email: data.email,
-      phone: data.phone,
-      city: data.city,
-      created_at: new Date().toISOString(),
-      status: 'pending',
-      amount: 999
+    // Append data to sheet with timestamp and status
+    await sheets.spreadsheets.values.append({
+      spreadsheetId: process.env.SHEET_ID,
+      range: 'Sheet1!A:F',
+      valueInputOption: 'USER_ENTERED',
+      requestBody: {
+        values: [[
+          body.name,
+          body.email,
+          body.phone,
+          body.city,
+          new Date().toISOString(),
+          'pending'  // Status column
+        ]]
+      }
     });
 
-    console.log('Enrollment saved, row:', result._rowNumber);
-    return NextResponse.json({ 
-      success: true,
-      rowNumber: result._rowNumber 
-    });
-
+    return NextResponse.json({ success: true });
   } catch (error) {
-    console.error('API Error:', {
+    console.error('Enrollment error:', error instanceof Error ? {
       message: error.message,
       name: error.name,
       stack: error.stack
-    });
+    } : error);
+
     return NextResponse.json(
-      { 
-        error: 'Failed to process enrollment',
-        details: error.message
-      },
+      { error: error instanceof Error ? error.message : 'Failed to process enrollment' },
       { status: 500 }
     );
   }

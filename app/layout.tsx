@@ -1,19 +1,25 @@
-import './globals.css'
-import type { Metadata } from 'next'
+import type { Metadata } from "next";
+import { Inter } from "next/font/google";
+import "./globals.css";
+import Layout from "./components/Layout";
+
+const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: 'JEE Test Series - Lumi AI',
-  description: 'AI-powered JEE test series with personalized insights',
-}
+  title: "Lumi AI JEE Test Series",
+  description: "AI-powered JEE test series with personalized learning and detailed analytics",
+};
 
 export default function RootLayout({
   children,
-}: {
-  children: React.ReactNode
-}) {
+}: Readonly<{
+  children: React.ReactNode;
+}>) {
   return (
     <html lang="en">
-      <body>{children}</body>
+      <body className={inter.className}>
+        <Layout>{children}</Layout>
+      </body>
     </html>
-  )
+  );
 }

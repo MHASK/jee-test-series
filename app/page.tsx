@@ -21,10 +21,11 @@ async function testApiConnection() {
   }
 }
 
+// Component: EnrollButton
 const EnrollButton = ({ onClick }: { onClick: () => void }) => (
   <button
     onClick={onClick}
-    className="px-6 py-3 bg-violet-500 text-white rounded-full hover:bg-violet-600 transition-colors"
+    className="px-6 py-3 bg-violet-600 text-white rounded-full hover:bg-violet-700 transition-colors"
   >
     Enroll Now
   </button>
@@ -38,6 +39,11 @@ export default function Home() {
     testApiConnection();
   }, []);
 
+  const handleEnrollClick = () => {
+    console.log('Enroll button clicked'); // Debug log
+    setShowEnrollForm(true);
+  };
+
   return (
     <div className="min-h-screen bg-white text-black relative">
       {/* Restore Gradient Background */}
@@ -46,12 +52,12 @@ export default function Home() {
         <div className="absolute top-0 right-1/4 w-[800px] h-[800px] bg-violet-500 opacity-[0.02] blur-[120px] -translate-y-1/2"></div>
       </div>
       {/* Header */}
-      <Header onEnrollClick={() => setShowEnrollForm(true)} />
+      <Header onEnrollClick={handleEnrollClick} />
 
       <main className="pt-[120px] px-6">
         <div className="max-w-[1400px] mx-auto">
           {/* Hero Section */}
-          <HeroSection onEnrollClick={() => setShowEnrollForm(true)} />
+          <HeroSection onEnrollClick={handleEnrollClick} />
 
           {/* Social Proof - Moved up for better flow */}
           <SocialProofBanner />
@@ -72,21 +78,91 @@ export default function Home() {
           <StudentResults />
 
           {/* Pricing Section */}
-          <PricingSection onEnrollClick={() => setShowEnrollForm(true)} />
+          <PricingSection onEnrollClick={handleEnrollClick} />
 
           {/* FAQ Section */}
           <FAQSection />
 
           {/* Final CTA */}
-          <FinalCTA onEnrollClick={() => setShowEnrollForm(true)} />
+          <FinalCTA onEnrollClick={handleEnrollClick} />
+
+          {/* NEET App Promo Section */}
+          <div className="py-24 bg-gradient-to-br from-violet-50 to-purple-50">
+            <div className="max-w-7xl mx-auto px-6">
+              <div className="flex flex-col lg:flex-row items-center gap-12">
+                {/* Left Content */}
+                <div className="flex-1 text-center lg:text-left">
+                  <div className="inline-flex items-center gap-2 px-3 py-1 bg-violet-100 rounded-full mb-6">
+                    <span className="w-2 h-2 bg-violet-500 rounded-full animate-pulse"></span>
+                    <span className="text-sm font-medium text-violet-700">New Release</span>
+                  </div>
+                  <h2 className="text-4xl font-bold mb-6">
+                    Preparing for NEET UG?
+                  </h2>
+                  <p className="text-lg text-gray-600 mb-8 max-w-2xl mx-auto lg:mx-0">
+                    Try our AI-powered NEET preparation app. Get personalized learning paths, detailed analytics, and expert guidance right on your phone.
+                  </p>
+                  <div className="flex flex-col sm:flex-row items-center gap-4 justify-center lg:justify-start">
+                    <a
+                      href="https://play.google.com/store/apps/details?id=com.aikolumi.neet"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-3 px-6 py-3 bg-violet-600 text-white rounded-lg hover:bg-violet-700 transition-colors"
+                    >
+                      <svg className="w-6 h-6" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M17.523 2.047a1.93 1.93 0 0 0-.487.06L6.22 6.028a1.93 1.93 0 0 0-1.009 2.89L7.28 12l-2.069 3.083a1.93 1.93 0 0 0 1.009 2.89l10.816 3.92a1.93 1.93 0 0 0 2.514-1.972V4.02a1.93 1.93 0 0 0-2.027-1.973z"/>
+                      </svg>
+                      Download App
+                    </a>
+                    <div className="flex items-center gap-4">
+                      <div className="flex -space-x-2">
+                        {[...Array(4)].map((_, i) => (
+                          <div key={i} className="w-8 h-8 rounded-full bg-violet-100 border-2 border-white"></div>
+                        ))}
+                      </div>
+                      <div className="text-sm">
+                        <div className="font-medium">4.8 ★★★★★</div>
+                        <div className="text-gray-500">10K+ Reviews</div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Right Content - App Preview */}
+                <div className="flex-1 relative">
+                  <div className="aspect-[4/3] relative">
+                    <div className="absolute inset-0 bg-gradient-to-br from-violet-200 to-purple-200 rounded-2xl transform rotate-3"></div>
+                    <div className="absolute inset-0 bg-white rounded-2xl shadow-xl">
+                      {/* App Screenshot/Preview */}
+                      <div className="p-6">
+                        <div className="space-y-4">
+                          <div className="h-40 bg-violet-50 rounded-lg animate-pulse"></div>
+                          <div className="space-y-2">
+                            <div className="h-4 w-2/3 bg-violet-100 rounded animate-pulse"></div>
+                            <div className="h-4 w-1/2 bg-violet-50 rounded animate-pulse"></div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </main>
 
       {/* Footer */}
       <Footer />
 
+      {/* Enrollment Form Modal */}
       {showEnrollForm && (
-        <EnrollmentForm onClose={() => setShowEnrollForm(false)} />
+        <EnrollmentForm 
+          onClose={() => {
+            console.log('Closing enrollment form'); // Debug log
+            setShowEnrollForm(false);
+          }} 
+        />
       )}
     </div>
   );
@@ -94,16 +170,6 @@ export default function Home() {
 
 // Component: Header
 const Header = ({ onEnrollClick }: { onEnrollClick: () => void }) => {
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
-
-  // Update menuItems to match actual sections
-  const menuItems = [
-    { label: 'Features', href: '#features' },
-    { label: 'Results', href: '#results' },
-    { label: 'Pricing', href: '#pricing' },
-    { label: 'FAQ', href: '#faq' },
-  ];
-
   return (
     <>
       <header className="fixed top-0 left-0 right-0 z-50 bg-white/90 backdrop-blur-sm border-b border-gray-100 w-screen overflow-x-hidden">
@@ -111,29 +177,20 @@ const Header = ({ onEnrollClick }: { onEnrollClick: () => void }) => {
           <nav className="flex items-center justify-between h-16">
             {/* Logo */}
             <Link href="/" className="flex items-center gap-2 flex-shrink-0">
-              <div className="w-8 h-8 bg-violet-600 rounded-lg flex items-center justify-center">
-                <span className="text-white font-semibold">L</span>
-              </div>
+              <Image
+                src="/logo.png"
+                alt="Lumi AI"
+                width={32}
+                height={32}
+                className="w-8 h-8 rounded-lg"
+              />
               <span className="text-base sm:text-lg font-medium">Lumi AI</span>
             </Link>
 
-            {/* Desktop Navigation */}
-            <div className="hidden md:flex items-center gap-4 lg:gap-6">
-              {menuItems.map((item) => (
-                <a
-                  key={item.href}
-                  href={item.href}
-                  className="text-sm text-gray-600 hover:text-gray-900 transition-colors whitespace-nowrap"
-                >
-                  {item.label}
-                </a>
-              ))}
-            </div>
-
             {/* Right Section */}
             <div className="flex items-center gap-2 sm:gap-4 flex-shrink-0">
-              {/* Timer - Desktop only */}
-              <div className="hidden lg:flex items-center gap-2">
+              {/* Timer */}
+              <div className="hidden sm:flex items-center gap-2">
                 <span className="text-sm text-gray-500 whitespace-nowrap">Starts in:</span>
                 <span className="text-sm font-medium text-violet-600 whitespace-nowrap">12:08:45</span>
               </div>
@@ -148,64 +205,19 @@ const Header = ({ onEnrollClick }: { onEnrollClick: () => void }) => {
 
               {/* Mobile Menu Button */}
               <button
-                onClick={() => setIsMenuOpen(!isMenuOpen)}
-                className="md:hidden p-2 text-gray-600 hover:text-gray-900"
-                aria-label="Menu"
+                onClick={onEnrollClick}
+                className="md:hidden p-2 text-white bg-violet-600 hover:bg-violet-700 rounded-lg"
+                aria-label="Enroll Now"
               >
-                {!isMenuOpen ? (
-                  <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-                  </svg>
-                ) : (
-                  <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                  </svg>
-                )}
+                Enroll Now
               </button>
             </div>
           </nav>
-
-          {/* Mobile Menu */}
-          <div
-            className={`md:hidden transition-all duration-200 ease-in-out ${
-              isMenuOpen ? 'h-auto opacity-100 visible' : 'h-0 opacity-0 invisible'
-            }`}
-          >
-            <div className="py-2 space-y-1">
-              {menuItems.map((item) => (
-                <a
-                  key={item.href}
-                  href={item.href}
-                  className="block px-4 py-2 text-base text-gray-600 hover:text-gray-900 hover:bg-gray-50 rounded-lg"
-                  onClick={() => setIsMenuOpen(false)}
-                >
-                  {item.label}
-                </a>
-              ))}
-              <div className="px-4 py-2 text-sm text-gray-500">
-                Starts in: <span className="font-medium text-violet-600">12:08:45</span>
-              </div>
-            </div>
-          </div>
         </div>
       </header>
 
-      {/* Mobile Fixed Bottom CTA */}
-      <div className="md:hidden fixed bottom-0 left-0 right-0 z-50 w-screen overflow-x-hidden">
-        <div className="bg-white border-t border-gray-100">
-          <div className="max-w-7xl mx-auto px-4 py-4">
-            <button
-              onClick={onEnrollClick}
-              className="w-full py-2.5 bg-violet-600 text-white font-medium rounded-lg hover:bg-violet-700 transition-colors"
-            >
-              Enroll Now
-            </button>
-          </div>
-        </div>
-      </div>
-
-      {/* Spacer for fixed bottom CTA */}
-      <div className="md:hidden h-[72px]" aria-hidden="true" />
+      {/* Spacer for fixed header */}
+      <div className="h-16" aria-hidden="true" />
     </>
   );
 };
@@ -220,71 +232,168 @@ const HeroSection = ({ onEnrollClick }: { onEnrollClick: () => void }) => {
             <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-violet-500 opacity-75"></span>
             <span className="relative inline-flex rounded-full h-2 w-2 bg-violet-500"></span>
           </span>
-          India's Most Advanced JEE Test Series
+          India's First AI-Powered JEE Test Series
         </div>
         <h1 className="text-4xl sm:text-[72px] leading-[1.2] sm:leading-[1.1] font-medium tracking-[-0.02em] mb-6">
-          Master JEE 2024 with
+          Get Your Unfair
           <br />
-          <span className="text-black">Lumi AI Test Series</span>
+          <span className="text-violet-600">AI Advantage</span> in JEE
         </h1>
         <p className="text-lg sm:text-xl text-gray-600 mb-8 sm:mb-12 max-w-[600px] mx-auto px-4 sm:px-0">
-          Join 50,000+ JEE aspirants experiencing personalized preparation with AI-powered adaptive tests and real-time analytics.
+          Our AI analyzes your every move to give personalized insights that other students don't have. Get a competitive edge with adaptive learning.
         </p>
-        <div className="flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-6 mb-16 px-4 sm:px-0">
-          <EnrollButton onClick={onEnrollClick} />
-          <a 
-            href="https://lumineet.com" 
-            target="_blank"
-            rel="noopener noreferrer" 
-            className="px-6 py-3 text-[15px] text-gray-600 hover:text-black transition-colors flex items-center gap-2"
+        <div className="flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-6 px-4 sm:px-0">
+          <button
+            onClick={onEnrollClick}
+            className="w-full sm:w-auto px-8 py-4 bg-violet-600 text-white rounded-xl hover:bg-violet-700 transition-colors text-lg font-medium"
           >
-            Try our AI for NEET
-            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-            </svg>
-          </a>
+            Get AI Advantage • ₹999
+          </button>
+          <Link 
+            href="/ai-features" 
+            className="text-gray-600 hover:text-gray-900 transition-colors flex items-center gap-2"
+          >
+            See How AI Helps →
+          </Link>
         </div>
 
-        {/* Social Proof Stats */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-8 p-8 rounded-2xl border border-gray-200 bg-violet-50">
-          {[
-            { number: "2K+", label: "Beta Users" },
-            { number: "85%", label: "Avg. Score Growth" },
-            { number: "92%", label: "Practice Completion" },
-            { number: "24/7", label: "AI Support" }
-          ].map((stat, index) => (
-            <div key={index} className="text-center">
-              <div className="text-3xl font-bold text-black mb-1">
-                {stat.number}
-              </div>
-              <div className="text-sm text-gray-500">{stat.label}</div>
-            </div>
-          ))}
-        </div>
-
-        {/* Trust Indicators */}
-        <div className="mt-12 flex items-center justify-center gap-8">
+        {/* Social Proof */}
+        <div className="mt-12 flex flex-col sm:flex-row items-center justify-center gap-8 text-sm text-gray-500">
           <div className="flex items-center gap-2">
             <svg className="w-5 h-5 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
-            <span className="text-sm text-gray-600">NTA Approved Pattern</span>
+            <span>50,000+ Students</span>
           </div>
           <div className="flex items-center gap-2">
             <svg className="w-5 h-5 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
-            <span className="text-sm text-gray-600">NCERT Aligned</span>
+            <span>500+ AI-Generated Insights</span>
           </div>
           <div className="flex items-center gap-2">
             <svg className="w-5 h-5 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
-            <span className="text-sm text-gray-600">Live Doubt Support</span>
+            <span>25% Better Results</span>
           </div>
         </div>
       </div>
     </div>
+  );
+};
+
+// Add this new section right after HeroSection
+const AIAdvantageSection = () => {
+  return (
+    <section id="ai-features" className="py-20 bg-gradient-to-b from-violet-50/50">
+      <div className="max-w-7xl mx-auto px-4">
+        <div className="text-center mb-16">
+          <h2 className="text-4xl font-bold mb-6">Your AI-Powered Advantage</h2>
+          <p className="text-xl text-gray-600 max-w-2xl mx-auto">
+            Our advanced AI gives you insights and advantages that traditional test series can't match. Here's how you'll stay ahead:
+          </p>
+        </div>
+
+        <div className="grid md:grid-cols-2 gap-12">
+          {/* Real-time Analysis */}
+          <div className="bg-white rounded-2xl p-8 shadow-lg border border-gray-100">
+            <div className="text-violet-600 font-semibold mb-4">Real-time Performance Analysis</div>
+            <h3 className="text-2xl font-bold mb-4">AI That Thinks Like a Topper</h3>
+            <p className="text-gray-600 mb-6">
+              Our AI analyzes your test-taking patterns in real-time, just like having a JEE topper guide you through each question.
+            </p>
+            <ul className="space-y-3">
+              {[
+                "Question sequence optimization for maximum marks",
+                "Time management insights based on your speed",
+                "Pattern recognition in your mistakes",
+                "Personalized difficulty adjustments"
+              ].map((item, i) => (
+                <li key={i} className="flex items-start gap-3">
+                  <svg className="w-5 h-5 text-green-500 mt-1 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                  <span>{item}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          {/* Predictive Insights */}
+          <div className="bg-white rounded-2xl p-8 shadow-lg border border-gray-100">
+            <div className="text-violet-600 font-semibold mb-4">Predictive AI Insights</div>
+            <h3 className="text-2xl font-bold mb-4">Know Your Future Rank</h3>
+            <p className="text-gray-600 mb-6">
+              Our AI predicts your JEE rank based on your performance and shows exactly what you need to improve.
+            </p>
+            <ul className="space-y-3">
+              {[
+                "Accurate rank predictions based on current trends",
+                "Topic-wise improvement recommendations",
+                "Competitive analysis against top performers",
+                "Daily improvement tracking"
+              ].map((item, i) => (
+                <li key={i} className="flex items-start gap-3">
+                  <svg className="w-5 h-5 text-green-500 mt-1 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                  <span>{item}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          {/* Smart Practice */}
+          <div className="bg-white rounded-2xl p-8 shadow-lg border border-gray-100">
+            <div className="text-violet-600 font-semibold mb-4">Adaptive Learning</div>
+            <h3 className="text-2xl font-bold mb-4">Practice Smarter, Not Harder</h3>
+            <p className="text-gray-600 mb-6">
+              Our AI creates a personalized practice plan that adapts to your learning style and speed.
+            </p>
+            <ul className="space-y-3">
+              {[
+                "Dynamic question difficulty based on your level",
+                "Focus on your weak areas automatically",
+                "Smart revision scheduling",
+                "Concept connection mapping"
+              ].map((item, i) => (
+                <li key={i} className="flex items-start gap-3">
+                  <svg className="w-5 h-5 text-green-500 mt-1 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                  <span>{item}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          {/* Competition Edge */}
+          <div className="bg-white rounded-2xl p-8 shadow-lg border border-gray-100">
+            <div className="text-violet-600 font-semibold mb-4">Competitive Edge</div>
+            <h3 className="text-2xl font-bold mb-4">Stay Ahead of Others</h3>
+            <p className="text-gray-600 mb-6">
+              Get insights that other students don't have access to, giving you a significant advantage.
+            </p>
+            <ul className="space-y-3">
+              {[
+                "Question probability predictions for actual JEE",
+                "Trending topics analysis",
+                "Performance comparison with toppers",
+                "Strategic time allocation advice"
+              ].map((item, i) => (
+                <li key={i} className="flex items-start gap-3">
+                  <svg className="w-5 h-5 text-green-500 mt-1 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                  <span>{item}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
   );
 };
 
@@ -1151,29 +1260,67 @@ const FinalCTA = ({ onEnrollClick }: { onEnrollClick: () => void }) => {
 
 // Component: Footer
 const Footer = () => {
+  const footerLinks = [
+    {
+      title: "Resources",
+      links: [
+        { label: "JEE Calendar", href: "/jee-calendar" },
+        { label: "JEE Syllabus", href: "/jee-syllabus" },
+        { label: "Previous Papers", href: "/previous-papers" },
+        { label: "Important Chapters", href: "/important-chapters" },
+      ]
+    },
+    {
+      title: "Help",
+      links: [
+        { label: "Preparation Tips", href: "/preparation-tips" },
+        { label: "Contact Us", href: "/contact" },
+      ]
+    }
+  ];
+
   return (
     <footer className="mt-32 py-8 sm:py-12 border-t border-gray-200">
       <div className="w-full max-w-7xl mx-auto px-4">
-        <div className="flex flex-col gap-8">
-          {/* Mobile Footer */}
-          <div className="flex flex-col items-center gap-6 md:hidden">
-            <Link href="/" className="font-medium text-gray-900">
-              Lumi AI
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
+          {/* Logo and Copyright */}
+          <div className="col-span-2">
+            <Link href="/" className="flex items-center gap-2 mb-4">
+              <Image
+                src="/logo.png"
+                alt="Lumi AI"
+                width={32}
+                height={32}
+                className="w-8 h-8 rounded-lg"
+              />
+              <span className="font-medium">Lumi AI</span>
             </Link>
-            <div className="text-sm text-gray-500 text-center">
+            <p className="text-sm text-gray-500">
+              India's First AI-Powered JEE Test Series
+            </p>
+            <p className="text-sm text-gray-500 mt-4">
               © 2024 Lumi AI. All rights reserved.
-            </div>
+            </p>
           </div>
 
-          {/* Desktop Footer */}
-          <div className="hidden md:flex justify-between items-center">
-            <Link href="/" className="font-medium text-gray-900">
-              Lumi AI
-            </Link>
-            <div className="text-sm text-gray-500">
-              © 2024 Lumi AI. All rights reserved.
+          {/* Links */}
+          {footerLinks.map((section, i) => (
+            <div key={i}>
+              <h3 className="font-medium mb-4">{section.title}</h3>
+              <ul className="space-y-3">
+                {section.links.map((link, j) => (
+                  <li key={j}>
+                    <Link 
+                      href={link.href}
+                      className="text-sm text-gray-600 hover:text-gray-900"
+                    >
+                      {link.label}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
             </div>
-          </div>
+          ))}
         </div>
       </div>
     </footer>

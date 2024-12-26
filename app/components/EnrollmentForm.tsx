@@ -7,6 +7,18 @@ interface EnrollmentFormProps {
   onClose: () => void;
 }
 
+declare global {
+  interface Window {
+    gtag?: (
+      type: string,
+      action: string,
+      params?: {
+        [key: string]: any;
+      }
+    ) => void;
+  }
+}
+
 export default function EnrollmentForm({ onClose }: EnrollmentFormProps) {
   const [formData, setFormData] = useState({
     name: '',
@@ -35,11 +47,35 @@ export default function EnrollmentForm({ onClose }: EnrollmentFormProps) {
         throw new Error(data.error || 'Failed to submit');
       }
 
+      // Track form submission
+      if (window.gtag) {
+        window.gtag('event', 'form_submission', {
+          'event_category': 'enrollment',
+          'event_label': 'JEE Test Series Enrollment'
+        });
+      }
+
       // Redirect to Razorpay with prefilled data
       const paymentUrl = new URL('https://rzp.io/l/tEYEGpT');
       paymentUrl.searchParams.append('prefill[email]', formData.email);
       paymentUrl.searchParams.append('prefill[contact]', formData.phone);
       paymentUrl.searchParams.append('prefill[name]', formData.name);
+      
+      // Track payment initiation
+      if (window.gtag) {
+        window.gtag('event', 'begin_checkout', {
+          'event_category': 'ecommerce',
+          'event_label': 'JEE Test Series Payment',
+          'value': 999,
+          'currency': 'INR',
+          'items': [{
+            'id': 'jee-test-series',
+            'name': 'JEE Test Series',
+            'price': '999',
+            'quantity': 1
+          }]
+        });
+      }
       
       window.location.href = paymentUrl.toString();
     } catch (err) {
@@ -158,7 +194,7 @@ export default function EnrollmentForm({ onClose }: EnrollmentFormProps) {
                 disabled={isSubmitting}
                 className="w-full flex justify-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-violet-600 hover:bg-violet-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-violet-500 disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                {isSubmitting ? 'Processing...' : 'Proceed to Payment • ₹999'}
+                {isSubmitting ? 'Processing...' : 'Proceed to Payment • ��999'}
               </button>
             </div>
 

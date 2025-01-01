@@ -7,7 +7,7 @@ interface PaymentButtonProps {
 
 export default function PaymentButton({ className, children }: PaymentButtonProps) {
   const handlePayment = () => {
-    window.location.href = 'YOUR_RAZORPAY_LINK';
+    window.location.href = 'https://rzp.io/rzp/VhpUMKOx';
   };
 
   return (

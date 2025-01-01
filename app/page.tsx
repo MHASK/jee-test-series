@@ -169,12 +169,6 @@ const Header = ({ onEnrollClick }: { onEnrollClick: () => void }) => {
 
             {/* Right Section */}
             <div className="flex items-center gap-2 sm:gap-4 flex-shrink-0">
-              {/* Timer */}
-              <div className="hidden sm:flex items-center gap-2">
-                <span className="text-sm text-gray-500 whitespace-nowrap">Starts in:</span>
-                <span className="text-sm font-medium text-violet-600 whitespace-nowrap">12:08:45</span>
-              </div>
-
               {/* Enroll Button - Desktop */}
               <button
                 onClick={onEnrollClick}
@@ -227,7 +221,7 @@ const HeroSection = ({ onEnrollClick }: { onEnrollClick: () => void }) => {
             onClick={onEnrollClick}
             className="w-full sm:w-auto px-8 py-4 bg-violet-600 text-white rounded-xl hover:bg-violet-700 transition-colors text-lg font-medium"
           >
-            Get AI Advantage • ₹999
+            Get AI Advantage • ₹499
           </button>
           <Link 
             href="/ai-features" 
@@ -831,8 +825,8 @@ const StudentResults = () => {
 
 // Component: PricingSection
 const PricingSection = ({ onEnrollClick }: { onEnrollClick: () => void }) => {
-  const discountedPrice = 999;
-  const originalPrice = 1999;
+  const discountedPrice = 499;
+  const originalPrice = 4999;
   const remainingSpots = 50;
 
   const features = [
@@ -867,7 +861,7 @@ const PricingSection = ({ onEnrollClick }: { onEnrollClick: () => void }) => {
       <div className="text-center mb-16">
         <h2 className="text-4xl font-bold mb-4">Complete JEE Test Series</h2>
         <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-          Get access to 20 full-length tests with AI-powered analysis
+          Get access to 20 premium tests with AI-powered analysis at 90% off
         </p>
       </div>
 
@@ -878,7 +872,7 @@ const PricingSection = ({ onEnrollClick }: { onEnrollClick: () => void }) => {
             <div className="flex items-center justify-between mb-8">
               <div>
                 <div className="text-lg font-medium">JEE Test Series 2025</div>
-                <div className="text-sm text-gray-500">Early Bird Offer</div>
+                <div className="text-sm text-violet-600 font-medium">90% Launch Discount</div>
               </div>
               <div className="text-right">
                 <div className="flex items-center gap-2 mb-1">
@@ -889,6 +883,19 @@ const PricingSection = ({ onEnrollClick }: { onEnrollClick: () => void }) => {
                   Save ₹{originalPrice - discountedPrice} Today
                 </div>
               </div>
+            </div>
+
+            {/* Add promotional banner */}
+            <div className="mb-6 p-4 bg-violet-50 rounded-lg">
+              <div className="flex items-center gap-2 text-violet-800 mb-2">
+                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                </svg>
+                <span className="font-medium">Special Launch Offer</span>
+              </div>
+              <p className="text-sm text-violet-700">
+                Get complete access at 90% less than market price. Regular test series cost ₹4,999 or more!
+              </p>
             </div>
 
             {/* Feature List */}
@@ -914,10 +921,10 @@ const PricingSection = ({ onEnrollClick }: { onEnrollClick: () => void }) => {
                 <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
-                <span className="font-medium">Limited Time Offer</span>
+                <span className="font-medium">Price Increases in 4 Days</span>
               </div>
               <p className="text-sm text-amber-700">
-                Price increases to ₹{originalPrice} after December 31st. Lock in the lowest price now!
+                Price will increase to ₹4,999 in 4 days. Lock in your 90% discount now!
               </p>
             </div>
 
@@ -929,7 +936,7 @@ const PricingSection = ({ onEnrollClick }: { onEnrollClick: () => void }) => {
                 Enroll Now at ₹{discountedPrice}
               </button>
               <p className="text-sm text-gray-500 text-center">
-                Only {remainingSpots} spots remaining at this price
+                Only {remainingSpots} spots remaining at this price • 4 days left
               </p>
             </div>
           </div>
